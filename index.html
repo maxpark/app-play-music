@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sheet Music Player · 악보 재생기</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>🎼 Sheet Music Player</h1>
+    <p class="subtitle">악보 이미지를 업로드하거나 카메라로 촬영하면 자동으로 연주합니다</p>
+  </header>
+
+  <main class="container">
+    <!-- ========= STEP 1: INPUT ========= -->
+    <section class="card">
+      <h2><span class="step-num">1</span> 악보 입력</h2>
+
+      <div class="tab-bar" role="tablist">
+        <button class="tab active" data-tab="upload" role="tab">📁 이미지 업로드</button>
+        <button class="tab" data-tab="camera" role="tab">📷 카메라 촬영</button>
+        <button class="tab" data-tab="musicxml" role="tab">🎵 MusicXML</button>
+        <button class="tab" data-tab="samples" role="tab">⭐ 샘플</button>
+      </div>
+
+      <div class="tab-panel active" data-panel="upload">
+        <label class="dropzone" id="dropzone">
+          <input type="file" id="image-input" accept="image/*" hidden />
+          <div class="dropzone-inner">
+            <span class="big-icon">📷</span>
+            <p><strong>클릭하거나 드래그</strong>해서 악보 이미지를 업로드하세요</p>
+            <p class="muted">PNG, JPG 지원</p>
+          </div>
+        </label>
+      </div>
+
+      <div class="tab-panel" data-panel="camera">
+        <div class="camera-wrap">
+          <video id="camera-video" playsinline autoplay muted></video>
+          <div class="camera-controls">
+            <button id="camera-start" class="btn primary">카메라 시작</button>
+            <button id="camera-capture" class="btn primary" disabled>📸 촬영</button>
+            <button id="camera-stop" class="btn ghost" disabled>중지</button>
+            <select id="camera-facing" class="select">
+              <option value="environment">후면 카메라</option>
+              <option value="user">전면 카메라</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="musicxml">
+        <label class="dropzone">
+          <input type="file" id="musicxml-input" accept=".xml,.musicxml,.mxl" hidden />
+          <div class="dropzone-inner">
+            <span class="big-icon">🎼</span>
+            <p><strong>MusicXML 파일</strong>을 업로드하세요</p>
+            <p class="muted">정확한 음표/박자 정보로 가장 안정적으로 연주됩니다</p>
+          </div>
+        </label>
+      </div>
+
+      <div class="tab-panel" data-panel="samples">
+        <p class="muted">번들된 샘플 악보 (SATB 합창 / 단성부 멜로디)</p>
+        <div class="sample-grid" id="sample-grid"></div>
+      </div>
+
+      <canvas id="preview-canvas" hidden></canvas>
+      <div id="image-preview" class="image-preview" hidden>
+        <img id="preview-img" alt="업로드된 악보" />
+      </div>
+    </section>
+
+    <!-- ========= STEP 2: ANALYSIS ========= -->
+    <section class="card" id="analysis-card" hidden>
+      <h2><span class="step-num">2</span> 악보 분석</h2>
+      <div id="analysis-status" class="status">대기 중...</div>
+      <div id="analysis-details" class="analysis-details"></div>
+      <canvas id="annotated-canvas" hidden></canvas>
+    </section>
+
+    <!-- ========= STEP 3: PLAYBACK ========= -->
+    <section class="card" id="playback-card" hidden>
+      <h2><span class="step-num">3</span> 연주</h2>
+
+      <div class="playback-controls">
+        <button id="play-btn" class="btn primary big">▶ 재생</button>
+        <button id="stop-btn" class="btn ghost big" disabled>■ 정지</button>
+      </div>
+
+      <div class="control-row">
+        <label>
+          BPM (속도)
+          <input type="range" id="bpm-slider" min="40" max="240" value="100" />
+          <span id="bpm-value">100</span>
+        </label>
+        <label>
+          마스터 볼륨
+          <input type="range" id="master-volume" min="-30" max="0" value="-6" />
+          <span id="volume-value">-6 dB</span>
+        </label>
+      </div>
+
+      <div class="control-row">
+        <label>
+          박자 (Time Signature)
+          <span id="time-sig-display" class="badge">4/4</span>
+        </label>
+        <label>
+          조성 (Key)
+          <span id="key-display" class="badge">C major</span>
+        </label>
+      </div>
+
+      <h3>🎻 파트별 설정</h3>
+      <div id="parts-container" class="parts-container"></div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <span id="progress-text">0:00 / 0:00</span>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>
+        ⚠️ 이미지 기반 OMR(악보 자동 인식)은 휴리스틱 기반이며 결과는 근사치입니다.
+        가장 정확한 재생을 원하시면 MusicXML 파일을 사용하세요.
+      </p>
+    </footer>
+  </main>
+
+  <!-- Tone.js for audio synthesis -->
+  <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+
+  <!-- App scripts (modules) -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
