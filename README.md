@@ -3,6 +3,23 @@
 성가대 대원이 **새로운 악보를 받았을 때** 혼자서도 파트별 음정과 박자를
 미리 들어보고 연습할 수 있도록 하는 웹 서비스입니다.
 
+## 📱 폰에서 바로 테스트 (사전 리뷰용)
+
+설치·배포 없이 아래 링크만 열면 됩니다. HTTPS 이므로 카메라/오디오도 정상 동작:
+
+**https://raw.githack.com/maxpark/app-play-music/claude/choir-music-preview-MhFc5/index.html**
+
+폰으로 QR 스캔이 더 편하시면 저장소 루트의 **[`preview.html`](./preview.html)** 을 PC 브라우저에서 열면 큼지막한 QR 코드가 나옵니다. 폰 카메라 앱으로 스캔 → 끝.
+
+| 대상 | 추천 경로 |
+| --- | --- |
+| 폰에서 바로 | 위 raw.githack URL 직접 열기 |
+| PC → 폰 공유 | `preview.html` 열고 QR 스캔 |
+| 팀원 여러 명 공유 | `npx surge .` 로 영구 `*.surge.sh` URL 발급 |
+| 로컬 개발 | `python3 -m http.server 8000` |
+
+---
+
 샘플 / MusicXML / 이미지 / 카메라 중 원하는 방식으로 악보를 입력하면,
 SATB (소프라노·알토·테너·베이스) 4성부 또는 단성부 악보를 자동 인식하여
 파트별로 음량과 악기를 조절해 가며 연주합니다.
