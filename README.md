@@ -90,9 +90,10 @@ npx serve .
 │   ├── player.js           # Tone.js 기반 멀티트랙 재생기 (메트로놈·루프·보컬 합성)
 │   └── camera.js           # getUserMedia 카메라 캡처
 └── samples/
-    ├── twinkle.musicxml
-    ├── satb-amen.musicxml
-    └── scale-3-4.musicxml
+    ├── hymn-eb-3-4.musicxml   # 찬송풍 SATB 데모 (Eb major, 3/4)
+    ├── satb-amen.musicxml     # SATB 카덴차 (F major, 4/4)
+    ├── twinkle.musicxml       # 단성부 (C major, 4/4)
+    └── scale-3-4.musicxml     # 음계 (3/4 박자 시연)
 ```
 
 ## 알려진 제한 사항

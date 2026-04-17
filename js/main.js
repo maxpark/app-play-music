@@ -548,6 +548,11 @@ function renderPitchKeyboard(score) {
 // ============ Samples ============
 const SAMPLES = [
   {
+    file: 'samples/hymn-eb-3-4.musicxml',
+    title: '⛪ 찬송풍 (Eb major, 3/4)',
+    desc: 'SATB 8마디 · 3/4 박자 · 찬송가와 같은 조성·박자 연습용',
+  },
+  {
     file: 'samples/satb-amen.musicxml',
     title: '⛪ Amen Cadence',
     desc: 'SATB 4성부 화음 · F major · 4/4',
