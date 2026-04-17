@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sheet Music Player · 악보 재생기</title>
+  <title>성가대 악보 미리듣기 · Choir Score Preview</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header class="app-header">
-    <h1>🎼 Sheet Music Player</h1>
-    <p class="subtitle">악보 이미지를 업로드하거나 카메라로 촬영하면 자동으로 연주합니다</p>
+    <h1>🎼 성가대 악보 미리듣기</h1>
+    <p class="subtitle">
+      새 악보의 <strong>음정</strong>과 <strong>박자</strong>를 파트별로 들어보며
+      혼자서도 연습할 수 있도록 도와드립니다
+    </p>
   </header>
 
   <main class="container">
@@ -18,19 +21,35 @@
       <h2><span class="step-num">1</span> 악보 입력</h2>
 
       <div class="tab-bar" role="tablist">
-        <button class="tab active" data-tab="upload" role="tab">📁 이미지 업로드</button>
-        <button class="tab" data-tab="camera" role="tab">📷 카메라 촬영</button>
+        <button class="tab active" data-tab="samples" role="tab">⭐ 샘플</button>
         <button class="tab" data-tab="musicxml" role="tab">🎵 MusicXML</button>
-        <button class="tab" data-tab="samples" role="tab">⭐ 샘플</button>
+        <button class="tab" data-tab="upload" role="tab">📁 이미지 업로드</button>
+        <button class="tab" data-tab="camera" role="tab">📷 카메라 촬영</button>
       </div>
 
-      <div class="tab-panel active" data-panel="upload">
+      <div class="tab-panel active" data-panel="samples">
+        <p class="muted">번들된 샘플 악보로 먼저 기능을 확인해 보세요.</p>
+        <div class="sample-grid" id="sample-grid"></div>
+      </div>
+
+      <div class="tab-panel" data-panel="musicxml">
+        <label class="dropzone">
+          <input type="file" id="musicxml-input" accept=".xml,.musicxml,.mxl" hidden />
+          <div class="dropzone-inner">
+            <span class="big-icon">🎼</span>
+            <p><strong>MusicXML 파일</strong>을 업로드하세요</p>
+            <p class="muted">정확한 음정/박자 정보로 가장 안정적으로 연주됩니다 (권장)</p>
+          </div>
+        </label>
+      </div>
+
+      <div class="tab-panel" data-panel="upload">
         <label class="dropzone" id="dropzone">
           <input type="file" id="image-input" accept="image/*" hidden />
           <div class="dropzone-inner">
             <span class="big-icon">📷</span>
             <p><strong>클릭하거나 드래그</strong>해서 악보 이미지를 업로드하세요</p>
-            <p class="muted">PNG, JPG 지원</p>
+            <p class="muted">PNG, JPG 지원 · 깨끗한 인쇄 악보일수록 정확합니다</p>
           </div>
         </label>
       </div>
@@ -50,22 +69,6 @@
         </div>
       </div>
 
-      <div class="tab-panel" data-panel="musicxml">
-        <label class="dropzone">
-          <input type="file" id="musicxml-input" accept=".xml,.musicxml,.mxl" hidden />
-          <div class="dropzone-inner">
-            <span class="big-icon">🎼</span>
-            <p><strong>MusicXML 파일</strong>을 업로드하세요</p>
-            <p class="muted">정확한 음표/박자 정보로 가장 안정적으로 연주됩니다</p>
-          </div>
-        </label>
-      </div>
-
-      <div class="tab-panel" data-panel="samples">
-        <p class="muted">번들된 샘플 악보 (SATB 합창 / 단성부 멜로디)</p>
-        <div class="sample-grid" id="sample-grid"></div>
-      </div>
-
       <canvas id="preview-canvas" hidden></canvas>
       <div id="image-preview" class="image-preview" hidden>
         <img id="preview-img" alt="업로드된 악보" />
@@ -82,10 +85,11 @@
 
     <!-- ========= STEP 3: PLAYBACK ========= -->
     <section class="card" id="playback-card" hidden>
-      <h2><span class="step-num">3</span> 연주</h2>
+      <h2><span class="step-num">3</span> 연주 · 연습</h2>
 
       <div class="playback-controls">
         <button id="play-btn" class="btn primary big">▶ 재생</button>
+        <button id="pause-btn" class="btn ghost big" disabled>❚❚ 일시정지</button>
         <button id="stop-btn" class="btn ghost big" disabled>■ 정지</button>
       </div>
 
@@ -102,6 +106,25 @@
         </label>
       </div>
 
+      <div class="preset-row">
+        <span class="preset-label">속도 프리셋:</span>
+        <button class="btn chip" data-tempo="0.5">🐢 0.5×</button>
+        <button class="btn chip" data-tempo="0.75">🚶 0.75×</button>
+        <button class="btn chip active" data-tempo="1">🏃 1.0×</button>
+        <button class="btn chip" data-tempo="1.25">⚡ 1.25×</button>
+      </div>
+
+      <div class="preset-row">
+        <label class="toggle-label">
+          <input type="checkbox" id="metronome-toggle" />
+          <span>🥁 메트로놈</span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="countin-toggle" checked />
+          <span>🔢 시작 전 카운트인 (1마디)</span>
+        </label>
+      </div>
+
       <div class="control-row">
         <label>
           박자 (Time Signature)
@@ -113,27 +136,82 @@
         </label>
       </div>
 
+      <!-- ========= Practice Mode ========= -->
+      <h3>🎯 내 파트 연습 모드</h3>
+      <div class="practice-box">
+        <div class="practice-row">
+          <label>
+            내 파트
+            <select id="my-part-select" class="select"></select>
+          </label>
+          <div class="practice-preset-btns">
+            <button class="btn chip" data-preset="solo">🎙️ 내 파트만 듣기</button>
+            <button class="btn chip" data-preset="guide">🤫 내 파트 mute (가이드 모드)</button>
+            <button class="btn chip" data-preset="learn">📖 내 파트 크게 + 반주 작게</button>
+            <button class="btn chip" data-preset="all">👥 전체 같이</button>
+          </div>
+        </div>
+        <p class="practice-hint muted">
+          ‘내 파트 mute’는 반주만 들으며 실제로 노래하는 연습용, ‘내 파트만 듣기’는 음정·리듬을 먼저 숙지하는 용도입니다.
+        </p>
+      </div>
+
       <h3>🎻 파트별 설정</h3>
       <div id="parts-container" class="parts-container"></div>
 
+      <!-- ========= Loop ========= -->
+      <h3>🔁 구간 반복 연습</h3>
+      <div class="loop-box">
+        <button id="loop-set-a" class="btn chip">A 지점 설정</button>
+        <button id="loop-set-b" class="btn chip">B 지점 설정</button>
+        <button id="loop-clear" class="btn chip ghost">해제</button>
+        <span id="loop-status" class="muted">반복 해제됨</span>
+      </div>
+
+      <!-- ========= Progress / Seek ========= -->
       <div class="progress-wrap">
-        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <div class="progress-bar" id="progress-bar" title="클릭하여 해당 위치로 이동">
+          <div id="loop-overlay" class="loop-overlay" hidden></div>
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
         <span id="progress-text">0:00 / 0:00</span>
       </div>
+      <div class="position-display">
+        <span class="muted">현재 마디</span>
+        <span id="measure-display" class="measure-num">1</span>
+        <span class="muted">· 박자</span>
+        <span id="beat-display" class="measure-num">1</span>
+      </div>
+
+      <!-- ========= Pitch preview keyboard ========= -->
+      <h3>🎹 음정 미리듣기</h3>
+      <p class="muted" style="margin-bottom:.4rem">건반을 클릭하면 선택된 악기로 그 음을 들려줍니다. 낯선 음정을 귀로 먼저 익히세요.</p>
+      <div class="preview-row">
+        <label>
+          미리듣기 악기
+          <select id="preview-instrument" class="select">
+            <option value="piano">🎹 피아노</option>
+            <option value="voice">🗣️ 보컬(합성)</option>
+            <option value="cello">🎻 첼로</option>
+            <option value="violin">🎻 바이올린</option>
+          </select>
+        </label>
+      </div>
+      <div id="pitch-keyboard" class="pitch-keyboard"></div>
     </section>
 
     <footer class="footer">
       <p>
-        ⚠️ 이미지 기반 OMR(악보 자동 인식)은 휴리스틱 기반이며 결과는 근사치입니다.
-        가장 정확한 재생을 원하시면 MusicXML 파일을 사용하세요.
+        💡 팁: 새 악보를 받으면 <strong>샘플처럼 먼저 전체를 들어본 뒤</strong>,
+        ‘내 파트만 듣기’로 음정을 익히고, 마지막에 ‘내 파트 mute’로 실제 노래 연습을 해 보세요.
+      </p>
+      <p class="muted" style="margin-top:.5rem">
+        ⚠️ 이미지 기반 OMR은 휴리스틱 기반이며 결과는 근사치입니다. 가장 정확한 재생은 MusicXML 파일에서 제공됩니다.
       </p>
     </footer>
   </main>
 
-  <!-- Tone.js for audio synthesis -->
   <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
-
-  <!-- App scripts (modules) -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
