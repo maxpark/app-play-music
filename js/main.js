@@ -8,6 +8,7 @@ import { parseMusicXML, formatKey } from './musicxml.js';
 import { runOMR } from './omr.js';
 import { Player, PART_COLORS, DEFAULT_INSTRUMENT, INSTRUMENT_LABELS } from './player.js';
 import { Camera } from './camera.js';
+import { hymnXML, satbXML, twinkleXML, scaleXML } from './samples-inline.js';
 
 // ============ DOM refs ============
 const $ = (sel) => document.querySelector(sel);
@@ -548,22 +549,22 @@ function renderPitchKeyboard(score) {
 // ============ Samples ============
 const SAMPLES = [
   {
-    file: 'samples/hymn-eb-3-4.musicxml',
+    xml: hymnXML,
     title: '⛪ 찬송풍 (Eb major, 3/4)',
     desc: 'SATB 8마디 · 3/4 박자 · 찬송가와 같은 조성·박자 연습용',
   },
   {
-    file: 'samples/satb-amen.musicxml',
+    xml: satbXML,
     title: '⛪ Amen Cadence',
     desc: 'SATB 4성부 화음 · F major · 4/4',
   },
   {
-    file: 'samples/twinkle.musicxml',
+    xml: twinkleXML,
     title: '🌟 작은 별 (Twinkle)',
     desc: '단성부 멜로디 · C major · 4/4',
   },
   {
-    file: 'samples/scale-3-4.musicxml',
+    xml: scaleXML,
     title: '🎵 C major Scale',
     desc: '음계 · 3/4 박자 시연',
   },
@@ -583,10 +584,7 @@ function renderSamples() {
       setStatus('샘플 로딩 중: ' + sample.title);
       analysisCard.hidden = false;
       try {
-        const res = await fetch(sample.file);
-        if (!res.ok) throw new Error('샘플 파일을 찾을 수 없습니다');
-        const text = await res.text();
-        const score = parseMusicXML(text);
+        const score = parseMusicXML(sample.xml);
         previewWrap.hidden = true;
         annotatedCanvas.hidden = true;
         await onScoreReady(score, { source: '샘플 · ' + sample.title, detected: false });
